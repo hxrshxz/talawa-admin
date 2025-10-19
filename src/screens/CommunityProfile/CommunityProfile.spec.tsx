@@ -9,7 +9,6 @@ import CommunityProfile from './CommunityProfile';
 import i18n from 'utils/i18nForTest';
 import { GET_COMMUNITY_DATA_PG } from 'GraphQl/Queries/Queries';
 import { BrowserRouter } from 'react-router';
-import { toast } from 'react-toastify';
 import {
   RESET_COMMUNITY,
   UPDATE_COMMUNITY_PG,
@@ -222,14 +221,40 @@ const UPDATE_SUCCESS_MOCKS = [
           id: null,
           inactivityTimeoutDuration: null,
           instagramURL: null,
-          linkedInURL: null,
+          linkedinURL: null,
           logoMimeType: null,
           logoURL: null,
           name: null,
           redditURL: null,
           slackURL: null,
           updatedAt: null,
-          updater: null,
+          websiteURL: null,
+          xURL: null,
+          youtubeURL: null,
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: GET_COMMUNITY_DATA_PG,
+    },
+    result: {
+      data: {
+        community: {
+          createdAt: null,
+          facebookURL: null,
+          githubURL: null,
+          id: null,
+          inactivityTimeoutDuration: null,
+          instagramURL: null,
+          linkedinURL: null,
+          logoMimeType: null,
+          logoURL: null,
+          name: null,
+          redditURL: null,
+          slackURL: null,
+          updatedAt: null,
           websiteURL: null,
           xURL: null,
           youtubeURL: null,
@@ -288,6 +313,8 @@ vi.mock('react-toastify', () => ({
     error: vi.fn(),
   },
 }));
+
+const { toast } = await import('react-toastify');
 
 describe('Testing Community Profile Screen', () => {
   beforeEach(() => {
@@ -544,8 +571,7 @@ describe('Testing Community Profile Screen', () => {
       </MockedProvider>,
     );
 
-    // Wait for initial query to complete
-    await wait(100);
+    await wait();
 
     const nameInput = screen.getByPlaceholderText(/Community Name/i);
     const websiteInput = screen.getByPlaceholderText(/Website Link/i);
@@ -554,18 +580,11 @@ describe('Testing Community Profile Screen', () => {
     await userEvent.type(websiteInput, 'https://test.com');
 
     const submitButton = screen.getByTestId('saveChangesBtn');
+    expect(submitButton).not.toBeDisabled();
     await userEvent.click(submitButton);
 
-    // Increase wait time and add error handling
-    try {
-      await wait(1000); // Increased wait time
-      expect(errorHandler).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.any(Error),
-      );
-    } catch (error) {
-      console.error('Mutation error:', error);
-      throw error;
-    }
+    await wait(500);
+
+    expect(toast.success).toHaveBeenCalled();
   });
 });
